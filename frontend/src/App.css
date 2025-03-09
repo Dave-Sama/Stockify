@@ -1,13 +1,60 @@
+/* Global container */
 .app-container {
-  text-align: center;
-  padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
+  padding: 0 20px;
 }
 
-h1 {
-  color: #333;
-  margin-bottom: 20px;
+/* Header styles */
+.app-header {
+  background-color: #1a2a44;
+  color: white;
+  padding: 15px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header-icon {
+  width: 32px;
+  height: 32px;
+}
+
+.app-header h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 700;
+}
+
+.app-header nav {
+  display: flex;
+  gap: 20px;
+}
+
+.nav-link {
+  color: #a3bffa;
+  text-decoration: none;
+  font-size: 16px;
+  transition: color 0.3s ease;
+}
+
+.nav-link:hover {
+  color: #ffffff;
+}
+
+/* Main content */
+main {
+  padding: 20px 0;
 }
 
 .stock-form {
@@ -22,6 +69,20 @@ h1 {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.filter-type {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  margin: 10px 0;
+}
+
+.filter-type label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  color: #555;
 }
 
 label {
@@ -60,4 +121,5 @@ button:hover:not(:disabled) {
 .error {
   color: red;
   margin: 10px 0;
+  text-align: center;
 }

@@ -1,10 +1,9 @@
-# Creates the Flask app and sets up CORS.
 from flask import Flask
 from flask_cors import CORS
+from .routes import api
 
 def create_app():
     app = Flask(__name__)
-    CORS(app)  # Enable CORS for React
-    from .routes import init_routes
-    init_routes(app)
+    CORS(app)
+    app.register_blueprint(api, url_prefix='/api')
     return app

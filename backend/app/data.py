@@ -9,13 +9,18 @@ DEFAULT_FORMAT = "csv"
 
 
 def load_data(ticker: str, period: str = DEFAULT_PERIOD, start: str = None, end: str = None, retries: int = 3) -> "pd.DataFrame":
+    
+    print("**********" ,ticker,period,start,end)
+    
     stock = yf.Ticker(ticker)
+    
     for attempt in range(retries):
         try:
             if start and end:
                 data = stock.history(start=start, end=end)
             else:
                 data = stock.history(period=period)
+                
             if data.empty:
                 raise ValueError(f"No data found for {ticker}")
             print(f"Successfully fetched data for {ticker}: {len(data)} trading days")
