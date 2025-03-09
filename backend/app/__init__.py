@@ -1,5 +1,4 @@
 # Creates the Flask app and sets up CORS.
-
 from flask import Flask
 from flask_cors import CORS
 
