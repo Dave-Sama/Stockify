@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import Plot from 'react-plotly.js';
 
-const StockPlot = ({ ticker, filterType, period, startDate, endDate, plotType }) => {
+const StockPlot = ({ ticker, filterType, period, startDate, endDate, plotType, maWindow }) => {
   const [plotData, setPlotData] = useState(null);
   const [error, setError] = useState(null);
 
@@ -13,6 +13,7 @@ const StockPlot = ({ ticker, filterType, period, startDate, endDate, plotType })
         ticker,
         plot_type: plotType,
         ...(filterType === 'period' ? { period } : { start: startDate, end: endDate }),
+        ...(plotType === 'moving_average' && maWindow ? { ma_window: maWindow } : {}),
       };
       try {
         const response = await fetch('http://localhost:5000/api/plot', {
@@ -35,10 +36,23 @@ const StockPlot = ({ ticker, filterType, period, startDate, endDate, plotType })
     };
 
     fetchPlot();
-  }, [ticker, filterType, period, startDate, endDate, plotType]);
+  }, [ticker, filterType, period, startDate, endDate, plotType, maWindow]);
 
   return (
     <div className="stock-plot">
+      {/* {plotType === 'moving_average' && (
+        <div className="ma-slider">
+          <label>Moving Average Window (days): {maWindow || 20}</label>
+          <input
+            type="range"
+            min="10"
+            max="300"
+            value={maWindow || 20}
+            onChange={(e) => window.location.reload()} // Temporary reload, we'll improve this
+            step="1"
+          />
+        </div>
+      )} */}
       {error && <div className="error">{error}</div>}
       {plotData && (
         <Plot

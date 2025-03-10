@@ -1,11 +1,12 @@
 import plotly.graph_objects as go
-import json 
+import json
+import pandas as pd
 
 DEFAULT_DATE_FORMAT = "%Y-%m-%d"
 PLOT_HEIGHT = 800
 ONE_DAY_MS = 86400000
 
-def generate_plot(ticker: str, data, plot_type: str = "close", date_format: str = DEFAULT_DATE_FORMAT) -> dict:
+def generate_plot(ticker: str, data, plot_type: str = "close", date_format: str = DEFAULT_DATE_FORMAT, ma_window: int = 20) -> dict:
     if data is None or data.empty:
         raise ValueError(f"No valid data provided for {ticker}")
 
@@ -44,24 +45,40 @@ def generate_plot(ticker: str, data, plot_type: str = "close", date_format: str 
             xaxis=dict(tickformat=date_format)
         )
     elif plot_type == "moving_average":
-        data['MA20'] = data['Close'].rolling(window=20).mean()
+        print("***************************************")
+        print("MA window requested: ", ma_window)
+        print("Data length: ", len(data))
+        print("***************************************")
+        
+        # Cap the window to the dataset length minus 1 to ensure at least one valid MA
+        effective_window = min(ma_window, len(data) - 1)
+        if effective_window < 10:  # Minimum window for meaningful MA
+            effective_window = 10
+            print("Warning: Window too small, set to minimum 10 days")
+        
+        data['MA'] = data['Close'].rolling(window=effective_window).mean()
         fig = go.Figure()
-        fig.add_trace(go.Scatter(
+        # Add candlestick trace
+        fig.add_trace(go.Candlestick(
             x=data.index,
-            y=data['Close'],
-            mode='lines',
-            name='Close Price'
+            open=data["Open"],
+            high=data["High"],
+            low=data["Low"],
+            close=data["Close"],
+            name="Candlestick"
         ))
+        # Add moving average trace
         fig.add_trace(go.Scatter(
             x=data.index,
-            y=data['MA20'],
+            y=data['MA'],
             mode='lines',
-            name='20-Day MA',
+            name=f'{effective_window}-Day MA',
             line=dict(color='orange')
         ))
         fig.update_layout(
-            title=f"{ticker} Moving Average",
+            title=f"{ticker} Moving Average ({effective_window}-Day)",
             yaxis_title="Price (USD)",
+            xaxis_rangeslider_visible=True,
             template="plotly_white",
             height=PLOT_HEIGHT,
             xaxis=dict(tickformat=date_format)
@@ -84,4 +101,4 @@ def generate_plot(ticker: str, data, plot_type: str = "close", date_format: str 
     else:
         raise ValueError(f"Unsupported plot_type: {plot_type}")
     
-    return json.loads(fig.to_json()) 
+    return json.loads(fig.to_json())

@@ -14,6 +14,8 @@ function FilterForm({
   plotType,
   setPlotType,
   handleSubmit,
+  maWindow,
+  setMaWindow
 }) {
   return (
     <form onSubmit={handleSubmit}>
@@ -78,6 +80,20 @@ function FilterForm({
           <option value="volume_weighted">Volume-Weighted Price</option>
         </select>
       </div>
+      {plotType === "moving_average" && (
+        <div className="form-group">
+          <label>Moving Average Window:</label>
+          <input
+            type="range"
+            min="5"
+            max="10"
+            value={maWindow}
+            onChange={(e) => setMaWindow(Number(e.target.value))}
+            step="1"
+          />
+          <span>{maWindow} days</span>
+        </div>
+      )}
       <button type="submit" disabled={!ticker}>
         Generate Plot
       </button>

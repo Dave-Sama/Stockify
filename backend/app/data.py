@@ -1,15 +1,16 @@
 # Houses load_data() and save_data() for stock data logic.
-
 import yfinance as yf
-from pathlib import Path
+import pandas as pd
+import numpy as np
 import time
+from pathlib import Path
+import os
 
 DEFAULT_PERIOD = "100d"
 DEFAULT_FORMAT = "csv"
 
 def load_data(ticker: str, period: str = DEFAULT_PERIOD, start: str = None, end: str = None, retries: int = 3) -> "pd.DataFrame":
     stock = yf.Ticker(ticker)
-    print("@@@@@@@@@@@@@@@@@" , start, end)
     for attempt in range(retries):
         try:
             if start and end:
@@ -46,6 +47,7 @@ def load_data(ticker: str, period: str = DEFAULT_PERIOD, start: str = None, end:
                 time.sleep(2)
             else:
                 raise ValueError(f"Failed to fetch data for {ticker} after {retries} attempts: {e}")
+
 def analyze_data(ticker: str, data: "pd.DataFrame") -> dict:
     """
     Analyze stock data characteristics using pandas.
@@ -65,6 +67,50 @@ def analyze_data(ticker: str, data: "pd.DataFrame") -> dict:
         }
     }
     return analysis
+
+def generate_insights(ticker: str, data: "pd.DataFrame") -> dict:
+    """
+    Generate insights from stock data including volatility, trend, and anomalies.
+    """
+    # Calculate daily returns
+    data['Daily_Return'] = data['Close'].pct_change().fillna(0)
+    
+    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+    print(data)
+    print("@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+
+    
+    # Volatility (standard deviation of daily returns)
+    volatility = data['Daily_Return'].std() * np.sqrt(252)  # Annualized volatility
+    volatility_percent = volatility * 100
+    
+    # Trend direction (slope of linear fit on closing prices)
+    days = np.arange(len(data))
+    slope, _ = np.polyfit(days, data['Close'], 1)
+    trend = "Upward" if slope > 0 else "Downward" if slope < 0 else "Flat"
+    
+    # Anomaly detection (days with volume > 2 standard deviations above mean)
+    volume_mean = data['Volume'].mean()
+    volume_std = data['Volume'].std()
+    anomalies = data[data['Volume'] > (volume_mean + 2 * volume_std)].index.tolist()
+    anomaly_dates = [d.strftime("%Y-%m-%d") for d in anomalies] if anomalies else []
+    
+    insights = {
+        "ticker": ticker,
+        "volatility": {
+            "annualized_volatility_percent": round(volatility_percent, 2),
+            "description": "Measures the annualized standard deviation of daily returns, indicating price fluctuation risk."
+        },
+        "trend": {
+            "direction": trend,
+            "description": "Indicates the general price trend based on a linear fit of closing prices."
+        },
+        "anomalies": {
+            "high_volume_dates": anomaly_dates,
+            "description": "Dates with unusually high trading volume (more than 2 standard deviations above mean)."
+        }
+    }
+    return insights
 
 def save_data(data: "pd.DataFrame", ticker: str, path: str = None, format: str = DEFAULT_FORMAT) -> None:
     format = format.lower() if format else DEFAULT_FORMAT

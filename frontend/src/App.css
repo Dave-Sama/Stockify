@@ -27,6 +27,7 @@
 
 .form-group {
   margin: 10px 0;
+  display: flex;
 }
 
 .stock-plot {
@@ -35,6 +36,41 @@
   padding: 10px;
 }
 
+.ma-slider {
+  margin: 10px 0;
+}
+
+.ma-slider input[type="range"] {
+  width: 200px;
+  margin: 0 10px;
+}
+
 .error {
   color: red;
+}
+
+.stock-insights {
+  margin-top: 20px;
+  padding: 10px;
+  border: 1px solid #ccc;
+}
+
+.stock-insights h2 {
+  color: #333;
+}
+
+.stock-insights h3 {
+  margin-top: 10px;
+  color: #555;
+}
+
+.stock-insights p {
+  margin: 5px 0;
+}
+
+label {
+  width: 150px;
+  display: block; /* Makes the label respect the width */
+  text-align: left; /* Aligns text to the left */
+  padding-left: 10px; /* Adds some space between the text and the left edge */
 }
