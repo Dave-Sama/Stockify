@@ -1,6 +1,7 @@
 import plotly.graph_objects as go
 import json
-import pandas as pd
+import mplfinance as mpf
+import matplotlib.pyplot as plt
 
 DEFAULT_DATE_FORMAT = "%Y-%m-%d"
 PLOT_HEIGHT = 800
@@ -102,3 +103,42 @@ def generate_plot(ticker: str, data, plot_type: str = "close", date_format: str 
         raise ValueError(f"Unsupported plot_type: {plot_type}")
     
     return json.loads(fig.to_json())
+
+def plot_data(data, plot_type, ma_window=None):
+    if plot_type in ["line", "bar", "scatter"]:
+        plt.figure(figsize=(20, 8))
+
+        if plot_type == "line":
+            plt.plot(data.index, data["Close"], label="Closing Price", color="blue")
+        elif plot_type == "bar":
+            plt.bar(data.index, data["Close"], label="Closing Price", color="blue", width=0.8)
+        elif plot_type == "scatter":
+            plt.scatter(data.index, data["Close"], label="Closing Price", color="blue", s=50)
+
+        # Add moving average if specified
+        if ma_window:
+            ma = data["Close"].rolling(window=ma_window).mean()
+            plt.plot(data.index, ma, label=f"{ma_window}-day MA", color="orange")
+
+        plt.title("Stock Price Over Time")
+        plt.xlabel("Date")
+        plt.ylabel("Price")
+        plt.legend()
+        plt.grid(True)
+        plt.xticks(rotation=45)
+        plt.show()
+
+    elif plot_type == "candlestick":
+        try:
+            ohlc_data = data[['Open', 'High', 'Low', 'Close', 'Volume']]
+            if ma_window:
+                ma = data["Close"].rolling(window=ma_window).mean()
+                add_plot = mpf.make_addplot(ma, color="orange", label=f"{ma_window}-day MA")
+                mpf.plot(ohlc_data, type="hollow_and_filled", style="charles", volume=True, 
+                         figsize=(20, 8), addplot=add_plot)
+            else:
+                mpf.plot(ohlc_data, type="hollow_and_filled", style="charles", volume=True, 
+                         figsize=(20, 8))
+        except Exception as e:
+            print(f"Error plotting candlestick chart: {e}")
+            return

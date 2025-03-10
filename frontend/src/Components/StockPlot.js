@@ -40,19 +40,6 @@ const StockPlot = ({ ticker, filterType, period, startDate, endDate, plotType, m
 
   return (
     <div className="stock-plot">
-      {/* {plotType === 'moving_average' && (
-        <div className="ma-slider">
-          <label>Moving Average Window (days): {maWindow || 20}</label>
-          <input
-            type="range"
-            min="10"
-            max="300"
-            value={maWindow || 20}
-            onChange={(e) => window.location.reload()} // Temporary reload, we'll improve this
-            step="1"
-          />
-        </div>
-      )} */}
       {error && <div className="error">{error}</div>}
       {plotData && (
         <Plot
